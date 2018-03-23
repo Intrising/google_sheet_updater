@@ -1,57 +1,3 @@
-var fs = require('fs');
-var readline = require('readline');
-var google = require('googleapis');
-var googleAuth = require('google-auth-library');
-
-// If modifying these scopes, delete your previously saved credentials
-// at ~/.credentials/sheets.googleapis.com-nodejs-quickstart.json
-var SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
-var TOKEN_DIR = (process.env.HOME || process.env.HOMEPATH ||
-    process.env.USERPROFILE) + '/.credentials/';
-var TOKEN_PATH = TOKEN_DIR + 'sheets.googleapis.com-nodejs-quickstart.json';
-
-var SHEET_ID = "1jw57yZTwBk8cpPhERzcHbzrPhx5I2PAE0bTWsQc92VU"
-var rangeMap = {
-  'gomax': 'B4:B4',        // for Eagleyes    version position in the https://docs.google.com/spreadsheets/d/1jw57yZTwBk8cpPhERzcHbzrPhx5I2PAE0bTWsQc92VU/edit#gid=0
-  'intrising': 'C3:C3',    // for intri.cloud version position in the https://docs.google.com/spreadsheets/d/1jw57yZTwBk8cpPhERzcHbzrPhx5I2PAE0bTWsQc92VU/edit#gid=0
-  'evo': 'D3:D3'           // for evo-ip      version position in the https://docs.google.com/spreadsheets/d/1jw57yZTwBk8cpPhERzcHbzrPhx5I2PAE0bTWsQc92VU/edit#gid=0
-}
-
-var testRegexMap = {
-  'gomax': /^v([0-9]+\.){2}(\*|[0-9]+e+)$/,
-  'intrising': /v^([0-9]+\.){2}(\*|[0-9]+i+)$/,
-  'evo': /^v([0-9]+\.){2}(\*|[0-9]+v+)$/
-}
-
-console.log('process.env.version', process.env.version)
-const VERSION = 'v' + (process.env.version || process.env.VERSION)
-const VENDOR = process.env.vendor || process.env.VENDOR
-let vendor = VENDOR.toLowerCase()
-let version = VERSION.toLowerCase()
-
-if (!VERSION || !VENDOR) throw('Version and Vendor is necessary')
-
-function checkParam () {
-  if (!rangeMap[vendor]) throw("Invalid vendor, please enter one of the 'gomax', 'intrising', 'evo'")
-  if (vendor === 'gomax' && !testRegexMap[vendor].test(version)) throw("Invalid version string, please enter the format like '1.22.31e'")
-  if (vendor === 'intrising' && !testRegexMap[vendor].test(version)) throw("Invalid version string, please enter the format like '1.22.31i'")
-  if (vendor === 'evo' && !testRegexMap[vendor].test(version)) throw("Invalid version string, please enter the format like '1.22.31v'")
-}
-
-checkParam()
-
-
-// Load client secrets from a local file.
-fs.readFile('client_secret.json', function processClientSecrets(err, content) {
-  if (err) {
-    console.log('Error loading client secret file: ' + err);
-    return;
-  }
-  // Authorize a client with the loaded credentials, then call the
-  // Google Sheets API.
-  authorize(JSON.parse(content), updateVersions);
-});
-
 
 /**
  * Create an OAuth2 client with the given credentials, and then execute the
@@ -60,7 +6,7 @@ fs.readFile('client_secret.json', function processClientSecrets(err, content) {
  * @param {Object} credentials The authorization client credentials.
  * @param {function} callback The callback to call with the authorized client.
  */
-function authorize(credentials, callback) {
+export function authorize (credentials, callback) {
   var clientSecret = credentials.installed.client_secret;
   var clientId = credentials.installed.client_id;
   var redirectUrl = credentials.installed.redirect_uris[0];
@@ -86,7 +32,7 @@ function authorize(credentials, callback) {
  * @param {getEventsCallback} callback The callback to call with the authorized
  *     client.
  */
-function getNewToken(oauth2Client, callback) {
+function getNewToken (oauth2Client, callback) {
   var authUrl = oauth2Client.generateAuthUrl({
     access_type: 'offline',
     scope: SCOPES
@@ -115,7 +61,7 @@ function getNewToken(oauth2Client, callback) {
  *
  * @param {Object} token The token to store to disk.
  */
-function storeToken(token) {
+function storeToken (token) {
   try {
     fs.mkdirSync(TOKEN_DIR);
   } catch (err) {
@@ -132,7 +78,7 @@ function storeToken(token) {
  * Print the names and majors of students in a sample spreadsheet:
  * https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
  */
-function listMajors(auth) {
+export function listMajors(auth) {
   var sheets = google.sheets('v4');
   sheets.spreadsheets.values.get({
     auth: auth,
@@ -157,7 +103,7 @@ function listMajors(auth) {
   });
 }
 
-function updateVersions(auth) {
+export function update (auth) {
   var sheets = google.sheets('v4');
   sheets.spreadsheets.values.update({
     auth: auth,
@@ -185,4 +131,9 @@ function updateVersions(auth) {
     //   }
     // }
   });
+}
+
+export default {
+  update,
+  authorize
 }
