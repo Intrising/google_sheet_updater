@@ -1,16 +1,7 @@
 // here is the example to update the version field in https://docs.google.com/spreadsheets/d/1jw57yZTwBk8cpPhERzcHbzrPhx5I2PAE0bTWsQc92VU/edit#gid=0
 import fs from 'fs'
-import readline from 'readline'
-import google from 'googleapis'
-import googleAuth from 'google-auth-library'
 import {update, authorize} from './updater'
 
-// If modifying these scopes, delete your previously saved credentials
-// at ~/.credentials/sheets.googleapis.com-nodejs-quickstart.json
-let SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
-let TOKEN_DIR = (process.env.HOME || process.env.HOMEPATH ||
-    process.env.USERPROFILE) + '/.credentials/';
-let TOKEN_PATH = TOKEN_DIR + 'sheets.googleapis.com-nodejs-quickstart.json';
 
 let SHEET_ID = "1jw57yZTwBk8cpPhERzcHbzrPhx5I2PAE0bTWsQc92VU"
 let rangeMap = {
@@ -28,16 +19,15 @@ let testRegexMap = {
 const VERSION = 'v' + (process.env.version || process.env.VERSION)
 const VENDOR = process.env.vendor || process.env.VENDOR
 
+let vendor = VENDOR.toLowerCase()
+let version = VERSION.toLowerCase()
+
 try {
   checkParam()
   run()
 } catch (e) {
   throw(e)
 }
-
-
-let vendor = VENDOR.toLowerCase()
-let version = VERSION.toLowerCase()
 
 function checkParam () {
   if (!VERSION || !VENDOR) throw('Version and Vendor is necessary')
@@ -57,6 +47,7 @@ function run () {
     }
     // Authorize a client with the loaded credentials, then call the
     // Google Sheets API.
-    authorize(JSON.parse(content), update);
-  });
+    authorize(JSON.parse(content), update, {range: rangeMap[vendor], id: SHEET_ID, values: [[version]]});
+  })
+  console.log('update done')
 }

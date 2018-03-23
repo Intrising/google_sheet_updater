@@ -1,3 +1,16 @@
+import fs from 'fs'
+import googleAuth from 'google-auth-library'
+import readline from 'readline'
+import google from 'googleapis'
+
+
+// If modifying these scopes, delete your previously saved credentials
+// at ~/.credentials/sheets.googleapis.com-nodejs-quickstart.json
+let SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
+let TOKEN_DIR = (process.env.HOME || process.env.HOMEPATH ||
+    process.env.USERPROFILE) + '/.credentials/';
+let TOKEN_PATH = TOKEN_DIR + 'sheets.googleapis.com-nodejs-quickstart.json';
+
 
 /**
  * Create an OAuth2 client with the given credentials, and then execute the
@@ -6,7 +19,7 @@
  * @param {Object} credentials The authorization client credentials.
  * @param {function} callback The callback to call with the authorized client.
  */
-export function authorize (credentials, callback) {
+export function authorize (credentials, callback, argsInCb) {
   var clientSecret = credentials.installed.client_secret;
   var clientId = credentials.installed.client_id;
   var redirectUrl = credentials.installed.redirect_uris[0];
@@ -16,10 +29,12 @@ export function authorize (credentials, callback) {
   // Check if we have previously stored a token.
   fs.readFile(TOKEN_PATH, function(err, token) {
     if (err) {
-      getNewToken(oauth2Client, callback);
+      console.log('get new token');
+      getNewToken(oauth2Client, callback, argsInCb);
     } else {
       oauth2Client.credentials = JSON.parse(token);
-      callback(oauth2Client);
+      console.log('run callback');
+      callback(oauth2Client, argsInCb);
     }
   });
 }
@@ -32,7 +47,7 @@ export function authorize (credentials, callback) {
  * @param {getEventsCallback} callback The callback to call with the authorized
  *     client.
  */
-function getNewToken (oauth2Client, callback) {
+function getNewToken (oauth2Client, callback, argsInCb) {
   var authUrl = oauth2Client.generateAuthUrl({
     access_type: 'offline',
     scope: SCOPES
@@ -51,7 +66,7 @@ function getNewToken (oauth2Client, callback) {
       }
       oauth2Client.credentials = token;
       storeToken(token);
-      callback(oauth2Client);
+      callback(oauth2Client, argsInCb);
     });
   });
 }
@@ -78,7 +93,7 @@ function storeToken (token) {
  * Print the names and majors of students in a sample spreadsheet:
  * https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
  */
-export function listMajors(auth) {
+export function listMajors(auth, argsInCb) {
   var sheets = google.sheets('v4');
   sheets.spreadsheets.values.get({
     auth: auth,
@@ -103,22 +118,22 @@ export function listMajors(auth) {
   });
 }
 
-export function update (auth) {
+export function update (auth, argsInCb) {
   var sheets = google.sheets('v4');
   sheets.spreadsheets.values.update({
     auth: auth,
-    spreadsheetId: SHEET_ID,
-    range: rangeMap[vendor],
+    spreadsheetId: argsInCb.id,
+    range: argsInCb.range,
     includeValuesInResponse: true,
     valueInputOption: 'RAW',  // using v25.0.0 will get error, so we use v24.0.0 now
     resource: {
-      values: [[version]]
+      values: argsInCb.values
     }
   }, function(err, response) {
     if (err) {
       throw ('The API returned an error: ' + err)
     }
-    // console.log("response.values is", response.values)
+    console.log("response.values is", response.values)
     // var rows = response.values;
     // if (rows.length == 0) {
     //   console.log('No data found.');
