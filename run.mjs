@@ -48,5 +48,5 @@ function run () {
     // Google Sheets API.
     authorize(JSON.parse(content), update, {range: rangeMap[vendor], id: SHEET_ID, values: [[version]]})
   })
-  console.log('update done')
+  console.log('Update ', vendor, ' to version ', version)
 }
