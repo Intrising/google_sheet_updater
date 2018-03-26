@@ -4,7 +4,7 @@ import {update, authorize} from './updater'
 
 let SHEET_ID = '1jw57yZTwBk8cpPhERzcHbzrPhx5I2PAE0bTWsQc92VU'
 let rangeMap = {
-  'gomax': 'B4:B4',        // for Eagleyes    version position in the https://docs.google.com/spreadsheets/d/1jw57yZTwBk8cpPhERzcHbzrPhx5I2PAE0bTWsQc92VU/edit#gid=0
+  'gomax': 'B3:B3',        // for Eagleyes    version position in the https://docs.google.com/spreadsheets/d/1jw57yZTwBk8cpPhERzcHbzrPhx5I2PAE0bTWsQc92VU/edit#gid=0
   'intrising': 'C3:C3',    // for intri.cloud version position in the https://docs.google.com/spreadsheets/d/1jw57yZTwBk8cpPhERzcHbzrPhx5I2PAE0bTWsQc92VU/edit#gid=0
   'evo': 'D3:D3'           // for evo-ip      version position in the https://docs.google.com/spreadsheets/d/1jw57yZTwBk8cpPhERzcHbzrPhx5I2PAE0bTWsQc92VU/edit#gid=0
 }
